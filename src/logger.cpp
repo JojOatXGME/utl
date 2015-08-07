@@ -1,0 +1,10 @@
+#include "utl/logger.h"
+
+
+namespace utl {
+
+Logger Logger::root (nullptr);
+std::shared_ptr<Logger> Logger::rootSharedPtr (&Logger::root, [](Logger*){});
+std::unordered_map<std::string, Logger> Logger::globalLoggers;
+
+} // namespace utl
