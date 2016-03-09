@@ -133,7 +133,6 @@ bool Arguments::getNextArgument(string& param)
 		idxArg++; idxChar = 0;
 		return true;
 	} else {
-		noOptions = true;
 		return false;
 	}
 }

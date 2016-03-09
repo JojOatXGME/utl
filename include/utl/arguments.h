@@ -1,6 +1,7 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
+#include <cassert>
 #include <cstdint>
 #include <map>
 #include <utility>
@@ -52,6 +53,7 @@ inline Arguments::Arguments(int argc, char const * const argv[]) :
 
 inline void Arguments::registerOption(const std::string &opt, int key)
 {
+	assert(key > 0);
 	optionMap[opt] = key;
 }
 
