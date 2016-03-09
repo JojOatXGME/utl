@@ -15,33 +15,37 @@ namespace utl {
 class Arguments
 {
 public:
-	Arguments(int argc, char *argv[]);
+	Arguments(int argc, char const * const argv[]);
+
+	void registerOption(const std::string& opt, int key);
 
 	int getNextOption();
 	bool getNextArgument(std::string& param);
-	void registerOption(const std::string& opt, int key);
-
-	std::string getOptionName() const;
-	const std::map<std::string,int>& getPossibleOptions() const;
 	int getArgumentsLeft() const;
 
 	template<typename T>
-	int getNextArgument(T &param);
+	bool getNextArgument(T &param);
+
+	std::string getOptionName() const;
+	const std::map<std::string,int>& getPossibleOptions() const;
+	bool hasParameter() const;
 
 private:
 	const int argc;
-	char * const * const argv;
+	char const * const * const argv;
+	std::map<std::string,int> optionMap;
+	bool strictRefuse = false;
+
 	std::size_t idxArg = 1, idxChar = 0;
+	std::queue<std::string> params;
+	bool noOptions = false;
+
 	std::string currentOption;
 	std::map<std::string,int> possibleOptions;
-	std::map<std::string,int> optionMap;
-	std::queue<std::string> params;
-	bool strictRefuse = false;
-	bool noOptions = false;
 };
 
 
-inline Arguments::Arguments(int argc, char *argv[]) :
+inline Arguments::Arguments(int argc, char const * const argv[]) :
 	argc{argc}, argv{argv}
 {
 }
@@ -49,6 +53,29 @@ inline Arguments::Arguments(int argc, char *argv[]) :
 inline void Arguments::registerOption(const std::string &opt, int key)
 {
 	optionMap[opt] = key;
+}
+
+inline int Arguments::getArgumentsLeft() const
+{
+	return (argc - idxArg) + params.size();
+}
+
+template<typename T>
+inline bool Arguments::getNextArgument(T &param)
+{
+	std::string str;
+	if (!getNextArgument(str))
+		return false;
+	std::istringstream stream(str);
+
+	stream >> param;
+
+	if (stream.fail())
+		throw std::exception(); // TODO use another exception type
+	if (stream.peek() != EOF)
+		throw std::exception(); // TODO use another exception type
+
+	return true;
 }
 
 inline std::string Arguments::getOptionName() const
@@ -61,28 +88,9 @@ inline const std::map<std::string, int> &Arguments::getPossibleOptions() const
 	return possibleOptions;
 }
 
-inline int Arguments::getArgumentsLeft() const
+inline bool Arguments::hasParameter() const
 {
-	return (argc - idxArg) + params.size();
-}
-
-template<typename T>
-inline int Arguments::getNextArgument(T &param)
-{
-	// TODO throw exception for invalid format?
-	std::string str;
-	if (!getNextArgument(str))
-		return 0;
-	std::istringstream stream{str};
-
-	stream >> param;
-
-	if (stream.fail())
-		return -1;
-	if (stream.peek() != EOF)
-		return -1;
-
-	return 1;
+	return idxChar > 0;
 }
 
 } // namespace utl
