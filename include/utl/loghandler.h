@@ -11,14 +11,19 @@ class LogHandler
 {
 public:
 	LogHandler();
+	virtual ~LogHandler() noexcept = default;
 
-	LogLevel getLevel() const;
-	void setLevel(LogLevel level);
+	const LogLevel &getLevel() const;
+	void setLevel(const LogLevel &level);
 
+	void handle(const LogRecord &record);
+
+protected:
 	virtual void publish(const LogRecord &record) = 0;
 
 private:
 	LogLevel level;
+
 };
 
 
@@ -27,14 +32,20 @@ inline LogHandler::LogHandler() :
 {
 }
 
-inline LogLevel LogHandler::getLevel() const
+inline const LogLevel &LogHandler::getLevel() const
 {
 	return this->level;
 }
 
-inline void LogHandler::setLevel(LogLevel level)
+inline void LogHandler::setLevel(const LogLevel &level)
 {
 	this->level = level;
+}
+
+inline void LogHandler::handle(const LogRecord &record)
+{
+	if (record.level >= this->getLevel())
+		publish(record);
 }
 
 } // namespace utl

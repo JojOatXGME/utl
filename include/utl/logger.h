@@ -2,6 +2,7 @@
 #define LOGGER_H
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -19,44 +20,50 @@ class Logger
 public:
 	Logger();
 	Logger(const std::shared_ptr<Logger> &parent);
+	virtual ~Logger() = default;
 
 	static Logger &getRoot();
-	static Logger &get(std::string name);
+	static Logger &get(const std::string &name);
+	static std::shared_ptr<Logger> getRootP();
+	static std::shared_ptr<Logger> getP(const std::string &name);
 
+	const LogLevel &getLevel() const;
+	void setLevel(const LogLevel &level);
 	void addHandler(std::shared_ptr<LogHandler> handler);
-	void setLevel(LogLevel level);
 	void removeHandler(std::shared_ptr<LogHandler> handler);
 
-	void log(LogLevel level, std::string msg);
-	template <typename... A>
-	void log(LogLevel level, std::string format, A... args);
+	void log(const LogLevel &level, const std::string &msg) const;
+	template <typename... Args>
+	void log(const LogLevel &level, const std::string &format, const Args&... args) const;
 
 protected:
-	void log(const LogRecord &record);
+	void log(const LogRecord &record) const;
 
 private:
-	LogLevel level;
-	std::string name;
-	std::shared_ptr<Logger> parent;
-	std::unordered_set<std::shared_ptr<LogHandler>> handlers;
+	LogLevel mLevel;
+	std::string mName;
+	std::shared_ptr<Logger> mParent;
+	std::unordered_set<std::shared_ptr<LogHandler>> mHandlers;
+	mutable std::mutex mMutex;
 
 	static Logger root;
 	static std::shared_ptr<Logger> rootSharedPtr;
-	static std::unordered_map<std::string, Logger> globalLoggers;
+	static std::unordered_map<std::string, std::shared_ptr<Logger>> globalLoggers;
+	static std::mutex staticMutex;
 };
 
 
 inline Logger::Logger() :
-	level(LogLevel::CONFIG)
+	mLevel(LogLevel::CONFIG)
 {
 }
 
 inline Logger::Logger(const std::shared_ptr<Logger> &parent) :
-	level(LogLevel::CONFIG),
-	parent(parent)
+	mLevel(LogLevel::CONFIG),
+	mParent(parent)
 {
-	if (parent != nullptr) {
-		level = parent->level;
+	if (mParent != nullptr) {
+		mLevel = mParent->mLevel;
 	}
 }
 
@@ -65,63 +72,89 @@ inline Logger &Logger::getRoot()
 	return Logger::root;
 }
 
-inline Logger &Logger::get(std::string name)
+inline Logger &Logger::get(const std::string &name)
 {
-	if (name.empty())
-		return Logger::root;
+	return *Logger::getP(name);
+}
 
-	auto ret = globalLoggers.emplace(name, Logger(rootSharedPtr));
+inline std::shared_ptr<Logger> Logger::getRootP()
+{
+	return Logger::rootSharedPtr;
+}
+
+inline std::shared_ptr<Logger> Logger::getP(const std::string &name)
+{
+	// use global logger if the name is empty
+	if (name.empty())
+		return Logger::rootSharedPtr;
+	// lock to secure the map (globalLoggers)
+	// TODO use a lock which supports concurrent reads?
+	std::lock_guard<std::mutex> lock(staticMutex);
+	// get the locker
+	auto ret = globalLoggers.emplace(name, std::make_shared<Logger>(rootSharedPtr));
+	std::shared_ptr<Logger> &logger = ret.first->second;
 	if (ret.second) {
-		Logger &logger = ret.first->second;
-		logger.name = name;
-		// TODO setup from configuration
-		return logger;
+		// locker is new, setup
+		logger->mName = name;
+		// TODO setup from configuration, if available
 	}
-	return ret.first->second;
+	return logger;
+}
+
+inline const LogLevel &Logger::getLevel() const
+{
+	std::lock_guard<std::mutex> lock(mMutex);
+	return mLevel;
+}
+
+inline void Logger::setLevel(const LogLevel &level)
+{
+	std::lock_guard<std::mutex> lock(mMutex);
+	mLevel = level;
 }
 
 inline void Logger::addHandler(std::shared_ptr<LogHandler> handler)
 {
-	this->handlers.insert(handler);
-}
-
-inline void Logger::setLevel(LogLevel level)
-{
-	this->level = level;
+	std::lock_guard<std::mutex> lock(mMutex);
+	mHandlers.insert(handler);
 }
 
 inline void Logger::removeHandler(std::shared_ptr<LogHandler> handler)
 {
-	this->handlers.erase(handler);
+	std::lock_guard<std::mutex> lock(mMutex);
+	mHandlers.erase(handler);
 }
 
-inline void Logger::log(LogLevel level, std::string msg)
+inline void Logger::log(const LogLevel &level, const std::string &msg) const
 {
-	if (level < this->level)
+	if (level < mLevel)
 		return;
 
 	LogRecord record;
-	record.loggerName = this->name;
+	record.loggerName = mName;
 	record.level = level;
 	record.message = msg;
 	this->log(record);
 }
 
-inline void Logger::log(const LogRecord &record)
-{
-	for (const std::shared_ptr<utl::LogHandler> &handler : this->handlers) {
-		handler->publish(record);
-	}
-
-	if (this->parent != nullptr) {
-		this->parent->log(record);
-	}
-}
-
-template <typename... A>
-inline void Logger::log(LogLevel level, std::string format, A... args)
+template <typename... Args>
+inline void Logger::log(const LogLevel &level, const std::string &format, const Args&... args) const
 {
 	this->log(level, utl::format(format, args...));
+}
+
+inline void Logger::log(const LogRecord &record) const
+{
+	// TODO use lock which supports concurrent reads?
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	for (const auto &handler : mHandlers) {
+		handler->handle(record);
+	}
+
+	if (this->mParent != nullptr) {
+		this->mParent->log(record);
+	}
 }
 
 } // namespace utl

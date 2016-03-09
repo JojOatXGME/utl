@@ -11,8 +11,13 @@ class ConsoleLogHandler : public LogHandler
 {
 public:
 	ConsoleLogHandler();
+	virtual ~ConsoleLogHandler() noexcept;
 
 	virtual void publish(const LogRecord &record) override;
+
+private:
+	bool mIsTTY;
+
 };
 
 } // namespace utl

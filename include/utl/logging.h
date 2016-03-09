@@ -5,12 +5,12 @@
 #include "utl/loglevel.h"
 
 
-#ifndef STR_VALUE_BASE
-#define STR_VALUE_BASE(arg) #arg
+#ifndef STR
+#define STR(arg) #arg
 #endif
 
 #ifndef STR_VALUE
-#define STR_VALUE(name) STR_VALUE_BASE(name)
+#define STR_VALUE(name) STR(name)
 #endif
 
 #ifndef UTL_LOGGER
