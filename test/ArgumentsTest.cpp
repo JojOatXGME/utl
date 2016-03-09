@@ -82,6 +82,44 @@ TEST(ArgumentsTest, onlyLongOption)
 	EXPECT_FALSE(         args.getNextArgument(param));
 }
 
+TEST(ArgumentsTest, emptyArgument)
+{
+	const char *argv[] = {"./myapp", ""};
+	Arguments args(2, argv);
+
+	string param;
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_TRUE(          args.getNextArgument(param));
+	EXPECT_EQ(        "", param);
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_FALSE(         args.getNextArgument(param));
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+}
+
+TEST(ArgumentsTest, emptyParameter)
+{
+	const char *argv[] = {"./myapp", "-x", ""};
+	Arguments args(3, argv);
+
+	string param;
+	EXPECT_EQ(         2, args.getArgumentsLeft());
+	EXPECT_EQ(       'x', args.getNextOption());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_TRUE(          args.getNextArgument(param));
+	EXPECT_EQ(        "", param);
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_FALSE(         args.getNextArgument(param));
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+}
+
 TEST(ArgumentsTest, shortOptionAndArgument)
 {
 	const char *argv[] = {"./myapp", "-x", "test"};

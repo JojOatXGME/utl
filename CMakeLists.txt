@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project( utl )
+project( "Utility Tool Library" )
 
 set(LIBNAME "utl")
 set(VERSION_MAJOR 0 CACHE STRING "Project major version number.")
@@ -43,8 +43,8 @@ target_include_directories("${LIBNAME}" PUBLIC "include")
 ## Create header with build information
 configure_file(
 	"${PROJECT_SOURCE_DIR}/config.h.in"
-	"${PROJECT_BINARY_DIR}/inc/utl/config.h" ESCAPE_QUOTES)
-target_include_directories("${LIBNAME}" PUBLIC "${PROJECT_BINARY_DIR}/inc")
+	"${PROJECT_BINARY_DIR}/include/utl/config.h" ESCAPE_QUOTES)
+target_include_directories("${LIBNAME}" PUBLIC "${PROJECT_BINARY_DIR}/include")
 
 ## Add rule for Doxygen
 option(DOC_TARGET
@@ -79,5 +79,8 @@ if (UNIT_TEST)
 	add_executable("utl_utests" ${UTEST_FILES})
 	target_include_directories("utl_utests" PRIVATE "${GTEST_INCLUDE_DIRS}")
 	target_link_libraries("utl_utests" "${LIBNAME}" ${GTEST_BOTH_LIBRARIES})
-	add_test(utests "utl_utests")
+	foreach (TEST_FILE ${UTEST_FILES})
+		get_filename_component(TNAME "${TEST_FILE}" NAME_WE)
+		add_test("${TNAME}" "utl_utests" "--gtest_filter=${TNAME}.*")
+	endforeach()
 endif()
