@@ -11,6 +11,35 @@ static string strPlus1(const string& str);
 
 namespace utl {
 
+/**
+ * @brief Returns the next option.
+ *
+ * This function is used to iterate over all options in the argument list. It
+ * goes forward in the argument list and returns the key of the next option.
+ * This key could be registered by registerOption(). If *strict mode* is
+ * disabled, this can also be the value of a character, which was
+ * used as an option. You can set *strict mode* in the
+ * {@link Arguments(int argc, const char *argv[], bool strict) %constructor}.
+ *
+ * @return
+ *   * The @em key if the option was registered with registerOption().
+ *
+ *   * The @em value of a character if *strict mode* is disabled and a short
+ *     option (like `-x`) is given. The option `-x` would produce `'x'` for
+ *     example.
+ *
+ *   * `0` if there is no option available anymore.
+ *
+ *   * `-1` if there was no option registered with the given name. For short
+ *     options, this can only happens if *strict mode* is enabled.
+ *
+ *   * If a long option (like `--enable`) is given and there are multiple
+ *     possibilities (like `--enableX` and `--enableY`).
+ *
+ * @see Arguments(int argc, const char *argv[], bool strict)
+ * @see registerOption()
+ * @see getNextArgument()
+ */
 int Arguments::getNextOption()
 {
 	if (noOptions)
@@ -120,7 +149,21 @@ int Arguments::getNextOption()
 	}
 }
 
-bool Arguments::getNextArgument(string& param)
+/**
+ * @brief Gets the next argument from the argument list.
+ *
+ * This function is used to iterate over all arguments in the argument list. It
+ * can be used to get a parameter of an option or to iterate over all
+ * arguments. The function getNextOption() may skip arguments since they may not
+ * be an option. getNextArgument() will not observe this arguments
+ * until getNextOption() has returned `0` at least one time.
+ *
+ * @param param The function will write the argument to this parameter.
+ * @return `false` if there is no argument left, `true` otherwise.
+ *
+ * @see getNextOption()
+ */
+bool Arguments::getNextArgument(std::string& param)
 {
 	if (noOptions && !params.empty()) {
 		param = params.front();

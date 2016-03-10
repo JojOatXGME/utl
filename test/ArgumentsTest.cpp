@@ -669,6 +669,57 @@ TEST(ArgumentsTest, longOptionParamCheckFalse)
 	EXPECT_EQ(         0, args.getArgumentsLeft());
 }
 
+TEST(ArgumentsTest, strictSuccess)
+{
+	const char *argv[] = {"./myapp", "-x", "--test", "arg"};
+	Arguments args(4, argv, true);
+	args.registerOption( "-x",    'x');
+	args.registerOption("--test", 'y');
+
+	string param;
+	EXPECT_EQ(         3, args.getArgumentsLeft());
+	EXPECT_EQ(       'x', args.getNextOption());
+	EXPECT_EQ(      "-x", args.getOptionName());
+	EXPECT_EQ(         2, args.getArgumentsLeft());
+	EXPECT_EQ(       'y', args.getNextOption());
+	EXPECT_EQ(  "--test", args.getOptionName());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_TRUE(          args.getNextArgument(param));
+	EXPECT_EQ(     "arg", param);
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_FALSE(         args.getNextArgument(param));
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+}
+
+TEST(ArgumentsTest, strictFailure)
+{
+	const char *argv[] = {"./myapp", "-x", "--test", "arg"};
+	Arguments args(4, argv, true);
+	args.registerOption("--test", 'y');
+
+	string param;
+	EXPECT_EQ(         3, args.getArgumentsLeft());
+	EXPECT_EQ(        -1, args.getNextOption());
+	EXPECT_EQ(      "-x", args.getOptionName());
+	EXPECT_EQ(         2, args.getArgumentsLeft());
+	EXPECT_EQ(       'y', args.getNextOption());
+	EXPECT_EQ(  "--test", args.getOptionName());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         1, args.getArgumentsLeft());
+	EXPECT_TRUE(          args.getNextArgument(param));
+	EXPECT_EQ(     "arg", param);
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_FALSE(         args.getNextArgument(param));
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+	EXPECT_EQ(         0, args.getNextOption());
+	EXPECT_EQ(         0, args.getArgumentsLeft());
+}
+
 TEST(ArgumentsTest, mix)
 {
 	const char *argv[] = {"./myapp", "-xyparam1", "--test=param2", "arg1",
