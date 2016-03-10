@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTL_UTILS_H
+#define UTL_UTILS_H
 
 #include <cstdint>
 #include <cstdio>
@@ -30,4 +30,4 @@ inline std::string format(const std::string format, A... args)
 
 } // namespace utl
 
-#endif // UTILS_H
+#endif // UTL_UTILS_H

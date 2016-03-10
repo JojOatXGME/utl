@@ -1,5 +1,5 @@
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef UTL_LOGGER_H
+#define UTL_LOGGER_H
 
 #include <memory>
 #include <mutex>
@@ -159,4 +159,4 @@ inline void Logger::log(const LogRecord &record) const
 
 } // namespace utl
 
-#endif // LOGGER_H
+#endif // UTL_LOGGER_H

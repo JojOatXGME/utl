@@ -1,5 +1,5 @@
-#ifndef ARGUMENTS_H
-#define ARGUMENTS_H
+#ifndef UTL_ARGUMENTS_H
+#define UTL_ARGUMENTS_H
 
 #include <cassert>
 #include <cstdint>
@@ -250,4 +250,4 @@ inline bool Arguments::hasParameter() const
 
 } // namespace utl
 
-#endif // ARGUMENTS_H
+#endif // UTL_ARGUMENTS_H

@@ -1,5 +1,5 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef UTL_LOGGING_H
+#define UTL_LOGGING_H
 
 #include "utl/logger.h"
 #include "utl/loglevel.h"
@@ -67,4 +67,4 @@ void severe(A... a) {
 
 } // namespace utl
 
-#endif // LOGGING_H
+#endif // UTL_LOGGING_H
