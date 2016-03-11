@@ -14,10 +14,6 @@ Current Features
 To-do
 -----
 
-  * Implement a more generic version of
-    `utl::Arguments::getNextArgument()`. The function should accept a
-    second parameter which specifies a reader.
-
   * Don't use the legacy `printf` functions to format log messages. Use
     a type safe implementation with templates.
 
@@ -68,7 +64,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (args.getArgumentsLeft() <= 1) {
+    if (args.getArgumentsLeft() > 1) {
         cerr << "Invalid amount of arguments." << endl;
         return EXIT_FAILURE;
     }
@@ -106,6 +102,9 @@ initialize your logging API:
 
 #include <utl/ConsoleLogHandler.h>
 #include <utl/Logger.h>
+
+using utl::ConsoleLogHandler;
+using utl::Logger;
 
 int main(int argc, char *argv[])
 {
