@@ -161,7 +161,10 @@ int Arguments::getNextOption()
  * @param param The function will write the argument to this parameter.
  * @return `false` if there is no argument left, `true` otherwise.
  *
+ * @see getNextArgument(T&,R)
+ *         Can be used with an {@link argr argument reader}.
  * @see getNextOption()
+ *         If you want to get the next option instead.
  */
 bool Arguments::getNextArgument(std::string& param)
 {

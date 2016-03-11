@@ -14,6 +14,139 @@
 namespace utl {
 
 /**
+ * @brief Argument readers for Arguments::getNextArgument(T&,R).
+ *
+ * *Argument readers* are classes (or functions) which can be used as second
+ * parameter of Arguments::getNextArgument(T&,R). They decide the way how an
+ * argument is parsed. All argument readers which are distributed with the
+ * library are inside this namespace.
+ *
+ * The only function they need to implement is
+ *
+ * ```
+ * bool operator() (const std::string &str, T &param);
+ * ```
+ *
+ * The first parameter is the argument as string. The second parameter is the
+ * variable where the result should be stored. The function have to return
+ * `true` on success. If the argument is not valid, it has to return `false`.
+ *
+ * Here is a simple example of an argument reader which accepts `true` and
+ * `false` only:
+ *
+ * ```{.cpp}
+ * struct boolean {
+ *     template<typename T>
+ *     bool operator() (const std::string &str, T &param) {
+ *         if (str == "true") {
+ *             param = true;
+ *             return true;
+ *         } else if (str == "false") {
+ *             param = false;
+ *             return true;
+ *         } else {
+ *             return false;
+ *         }
+ *     }
+ * }
+ * ```
+ *
+ * @see Arguments::getNextArgument(T&,R)
+ *         The function where you can use stream readers.
+ * @see argr::fromStream
+ *         The default stream reader.
+ * @see argr::withUnit
+ *         If you want to read a value while the user can use different units.
+ */
+namespace argr {
+
+/**
+ * @brief The default argument reader.
+ *
+ * It uses the stream operator `>>` to read the parameter. This mean it can read
+ * any type which has implemented this operator. It works for basic types like
+ * int and double, but you may also use custom types. Here is a simple example
+ * how to read a double value with this reader:
+ *
+ * ```{.cpp}
+ * double x;
+ * if (!args.getNextArgument(x)) {
+ *     // handle missing argument
+ * }
+ * ```
+ */
+struct fromStream {
+	template<typename T>
+	bool operator() (const std::string &str, T &param) {
+		std::istringstream stream(str);
+		stream >> param;
+
+		if (stream.fail() || stream.peek() != EOF)
+			return false;
+		else
+			return true;
+	}
+};
+
+/**
+ * @brief Allows the use of units.
+ *
+ * If you want that a user can add `k`, `M` or `G` as suffix to apply a factor,
+ * you can use this argument reader. Here is a example how you could achieve it:
+ *
+ * ```{.cpp}
+ * utl::argr::withUnit<long> myUnits{
+ *         {"",   1},
+ *         {"k",  1000},
+ *         {"M",  1000 * 1000},
+ *         {"G",  1000 * 1000 * 1000}
+ * }
+ *
+ * long x;
+ * if (!args.getNextArgument(x, myUnits)) {
+ *     // handle missing argument
+ * }
+ * ```
+ *
+ * @note
+ *     The user can not eneter any number without a unit. If you want to accept
+ *     pure numbers, you have to add an empty unit (``""``). Just like in the
+ *     example. The user can always enter `0`, even if there is no empty unit.
+ */
+template<typename F>
+class withUnit {
+public:
+	withUnit(std::initializer_list<std::pair<const std::string,F>> il) :
+		unitMap(il)
+	{}
+
+	template<typename T>
+	bool operator() (const std::string &str, T &param) {
+		std::istringstream stream(str);
+		stream >> param;
+
+		std::string unit = static_cast<std::stringstream&>(
+					std::stringstream() << stream.rdbuf()).str();
+		auto it = unitMap.find(unit);
+
+		if (stream.fail()) {
+			return false;
+		} else if (param == 0 && stream.peek() == EOF) {
+			return true;
+		} else if (it != unitMap.end()) {
+			param *= it->second;
+			return true;
+		} else {
+			return false;
+		}
+	}
+private:
+	std::map<std::string,F> unitMap;
+};
+
+} // namespace argr
+
+/**
  * @brief A class to parse command line arguments.
  *
  * This class can be used to parse command line arguments. The following example
@@ -21,14 +154,14 @@ namespace utl {
  * `--debug` and up to one argument which will be stored in `inputFile`:
  *
  * ```
- * #define ARG_DEBUG 256
+ * #define OPT_DEBUG 256
  *
  * int main(int argc, char *argv[])
  * {
  *     Arguments args(argc, argv);
  *     args.registerOption("--quiet", 'q');
  *     args.registerOption("--silent", 'q');
- *     args.registerOption("--debug", ARG_DEBUG);
+ *     args.registerOption("--debug", OPT_DEBUG);
  *
  *     std::string inputFile = "-";
  *     std::string outputFile = "-";
@@ -47,7 +180,7 @@ namespace utl {
  *         case 'q':
  *             quiet = true;
  *             break;
- *         case ARG_DEBUG:
+ *         case OPT_DEBUG:
  *             debug = true;
  *             break;
  *         case -2:
@@ -59,7 +192,7 @@ namespace utl {
  *         }
  *     }
  *
- *     if (args.getArgumentsLeft() <= 1) {
+ *     if (args.getArgumentsLeft() > 1) {
  *         cerr << "Invalid amount of arguments." << endl;
  *         return EXIT_FAILURE;
  *     }
@@ -82,8 +215,8 @@ public:
 	bool getNextArgument(std::string& param);
 	int getArgumentsLeft() const;
 
-	template<typename T>
-	bool getNextArgument(T &param);
+	template<typename T, typename R = argr::fromStream>
+	bool getNextArgument(T &param, R reader = R());
 
 	std::string getOptionName() const;
 	const std::map<std::string,int>& getPossibleOptions() const;
@@ -177,22 +310,35 @@ inline int Arguments::getArgumentsLeft() const
 	return (argc - idxArg) + params.size();
 }
 
-template<typename T>
-inline bool Arguments::getNextArgument(T &param)
+/**
+ * @brief Gets the next argument while using an argument reader.
+ *
+ * This function is an extension of getNextArgument(std::string&). It uses an
+ * {@link argr argument reader} which can be specified as second parameter.
+ * The default argument reader is argr::fromStream. If the argument is not valid
+ * (corresponding to the argument reader), the function will throw an exception.
+ *
+ * @param param The function will write the argument to this parameter.
+ * @param reader The argument reader which should be used.
+ * @return `false` if there is no argument left, `true` otherwise.
+ * @throws std::exception If the argument is not valid.
+ *
+ * @see getNextArgument(std::string&)
+ *         Is used by this function.
+ * @see argr
+ *         To get a list of argument readers distributed by the library.
+ */
+template<typename T, typename R>
+inline bool Arguments::getNextArgument(T &param, R reader)
 {
 	std::string str;
 	if (!getNextArgument(str))
 		return false;
-	std::istringstream stream(str);
 
-	stream >> param;
-
-	if (stream.fail())
+	if (reader(str, param))
+		return true;
+	else
 		throw std::exception(); // TODO use another exception type
-	if (stream.peek() != EOF)
-		throw std::exception(); // TODO use another exception type
-
-	return true;
 }
 
 /**
