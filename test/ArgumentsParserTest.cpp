@@ -6,6 +6,7 @@
 
 using std::string;
 using utl::Arguments;
+using utl::argr::boolean;
 
 
 utl::argr::withUnit<long> testUnit{
@@ -224,4 +225,110 @@ TEST(ArgumentsParserTest, integerFailNotFound)
 
 	int arg;
 	EXPECT_THROW(     args.getNextArgument(arg, testUnit), std::exception);
+}
+
+// ---------------------------------------------------------------------------
+// boolean
+
+TEST(ArgumentsParserTest, boolean0)
+{
+	const char *argv[] = {"./myapp", "0"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ( false, arg);
+}
+
+TEST(ArgumentsParserTest, boolean1)
+{
+	const char *argv[] = {"./myapp", "1"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ(  true, arg);
+}
+
+TEST(ArgumentsParserTest, booleanTrue)
+{
+	const char *argv[] = {"./myapp", "true"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ(  true, arg);
+}
+
+TEST(ArgumentsParserTest, booleanFalse)
+{
+	const char *argv[] = {"./myapp", "false"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ( false, arg);
+}
+
+TEST(ArgumentsParserTest, booleanOn)
+{
+	const char *argv[] = {"./myapp", "on"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ(  true, arg);
+}
+
+TEST(ArgumentsParserTest, booleanOff)
+{
+	const char *argv[] = {"./myapp", "off"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ( false, arg);
+}
+
+TEST(ArgumentsParserTest, booleanCase)
+{
+	const char *argv[] = {"./myapp", "TRUE", "FAlSE", "On", "oFf"};
+	Arguments args(5, argv);
+
+	bool arg;
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ(  true, arg);
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ( false, arg);
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ(  true, arg);
+	EXPECT_TRUE(      args.getNextArgument(arg, boolean()));
+	EXPECT_EQ( false, arg);
+}
+
+TEST(ArgumentsParserTest, booleanFailPrefix)
+{
+	const char *argv[] = {"./myapp", "x1"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_THROW(     args.getNextArgument(arg, boolean()), std::exception);
+}
+
+TEST(ArgumentsParserTest, booleanFailSuffix)
+{
+	const char *argv[] = {"./myapp", "0t"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_THROW(     args.getNextArgument(arg, boolean()), std::exception);
+}
+
+TEST(ArgumentsParserTest, booleanFail00)
+{
+	const char *argv[] = {"./myapp", "0.0"};
+	Arguments args(2, argv);
+
+	bool arg;
+	EXPECT_THROW(     args.getNextArgument(arg, boolean()), std::exception);
 }

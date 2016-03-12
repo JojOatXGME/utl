@@ -1,8 +1,10 @@
 #ifndef UTL_ARGUMENTS_H
 #define UTL_ARGUMENTS_H
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
+#include <locale>
 #include <map>
 #include <utility>
 #include <queue>
@@ -142,6 +144,37 @@ public:
 	}
 private:
 	std::map<std::string,F> unitMap;
+};
+
+/**
+ * @brief Reads a boolean value.
+ *
+ * The reader accepts `0`, `1`, `true`, `false`, `on` and `off`. It also accepts
+ * upper case versions of this strings.
+ *
+ * ```
+ * bool x;
+ * args.getNextArgument(x, utl::argr::boolean());
+ * ```
+ */
+struct boolean {
+	template<typename T>
+	bool operator() (const std::string &str, T &param) {
+		std::string lc = str;
+		std::transform(str.begin(), str.end(), lc.begin(), [](char c) {
+			return std::tolower(c, std::locale::classic());
+		});
+
+		if (lc == "1" | lc == "true" | lc == "on") {
+			param = true;
+			return true;
+		} else if (lc == "0" | lc == "false" | lc == "off") {
+			param = false;
+			return true;
+		} else {
+			return false;
+		}
+	}
 };
 
 } // namespace argr
