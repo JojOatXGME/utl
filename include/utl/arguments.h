@@ -177,6 +177,67 @@ struct boolean {
 	}
 };
 
+/**
+ * @brief Helper class for utl::argr::list.
+ *
+ * @see list
+ */
+template<typename R = fromStream>
+class list_helper {
+	template<typename C, typename V>
+	static void addTo(C &container, const V &value, decltype(container.insert(value))* = nullptr) {
+		container.insert(value);
+	}
+	template<typename C, typename V>
+	static void addTo(C &container, const V &value, decltype(container.push_back(value))* = nullptr) {
+		container.push_back(value);
+	}
+public:
+	list_helper(const R &reader = R(), char delimiter = ',') :
+		reader(reader), delimiter(delimiter)
+	{}
+	template<typename T>
+	bool operator() (const std::string &str, T &param) {
+		if (str.empty())
+			return true;
+		std::size_t lastDeli = 0;
+		do {
+			std::size_t nextDeli = str.find_first_of(delimiter, lastDeli);
+			typename T::value_type val;
+			if (!reader(str.substr(lastDeli, nextDeli - lastDeli), val))
+				return false;
+			addTo(param, val);
+			lastDeli = nextDeli;
+		} while (lastDeli++ != std::string::npos);
+		return true;
+	}
+private:
+	R reader;
+	char delimiter;
+};
+
+/**
+ * @brief Reads a list.
+ *
+ * Here is a simple example which can read a comma seperated list of integers:
+ *
+ * ```
+ * std::vector<int> x;
+ * args.getNextArgument(x, utl::argr::list());
+ * ```
+ *
+ * But you can also specify another delimiter and reader:
+ *
+ * ```
+ * std::vector<bool> x;
+ * args.getNextArgument(x, utl::argr::list(boolean(), ':'));
+ * ```
+ */
+template<typename R = fromStream>
+list_helper<R> list(const R &reader = R(), char delimiter = ',') {
+	return list_helper<R>(reader, delimiter);
+}
+
 } // namespace argr
 
 /**

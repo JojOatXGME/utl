@@ -1,4 +1,6 @@
+#include <list>
 #include <string>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -7,6 +9,7 @@
 using std::string;
 using utl::Arguments;
 using utl::argr::boolean;
+using utl::argr::list;
 
 
 utl::argr::withUnit<long> testUnit{
@@ -331,4 +334,89 @@ TEST(ArgumentsParserTest, booleanFail00)
 
 	bool arg;
 	EXPECT_THROW(     args.getNextArgument(arg, boolean()), std::exception);
+}
+
+// ---------------------------------------------------------------------------
+// list
+
+TEST(ArgumentsParserTest, list555)
+{
+	const char *argv[] = {"./myapp", "5,5,5"};
+	Arguments args(2, argv);
+
+	std::vector<int> arg;
+	std::vector<int> expected = {5, 5, 5};
+	EXPECT_TRUE(      args.getNextArgument(arg, list()));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, list0)
+{
+	const char *argv[] = {"./myapp", "0"};
+	Arguments args(2, argv);
+
+	std::list<int> arg;
+	std::list<int> expected = {0};
+	EXPECT_TRUE(      args.getNextArgument(arg, list()));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, listEmpty)
+{
+	const char *argv[] = {"./myapp", ""};
+	Arguments args(2, argv);
+
+	std::vector<int> arg;
+	std::vector<int> expected = {};
+	EXPECT_TRUE(      args.getNextArgument(arg, list()));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, listCustomReader)
+{
+	const char *argv[] = {"./myapp", "true,false,off"};
+	Arguments args(2, argv);
+
+	std::vector<bool> arg;
+	std::vector<bool> expected = {true, false, false};
+	EXPECT_TRUE(      args.getNextArgument(arg, list(boolean())));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, listCustomDelimeter)
+{
+	const char *argv[] = {"./myapp", "0:0:1"};
+	Arguments args(2, argv);
+
+	std::vector<bool> arg;
+	std::vector<bool> expected = {false, false, true};
+	EXPECT_TRUE(      args.getNextArgument(arg, list(boolean(), ':')));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, listFail1)
+{
+	const char *argv[] = {"./myapp", "6,9,f"};
+	Arguments args(2, argv);
+
+	std::vector<int> arg;
+	EXPECT_THROW(     args.getNextArgument(arg, list()), std::exception);
+}
+
+TEST(ArgumentsParserTest, listFail2)
+{
+	const char *argv[] = {"./myapp", "f,9,0"};
+	Arguments args(2, argv);
+
+	std::vector<int> arg;
+	EXPECT_THROW(     args.getNextArgument(arg, list()), std::exception);
+}
+
+TEST(ArgumentsParserTest, listFail3)
+{
+	const char *argv[] = {"./myapp", "6,f,0"};
+	Arguments args(2, argv);
+
+	std::vector<int> arg;
+	EXPECT_THROW(     args.getNextArgument(arg, list()), std::exception);
 }
