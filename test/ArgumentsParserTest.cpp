@@ -1,4 +1,5 @@
 #include <list>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -368,6 +369,17 @@ TEST(ArgumentsParserTest, listEmpty)
 
 	std::vector<int> arg;
 	std::vector<int> expected = {};
+	EXPECT_TRUE(      args.getNextArgument(arg, list()));
+	EXPECT_EQ(expected, arg);
+}
+
+TEST(ArgumentsParserTest, listSet)
+{
+	const char *argv[] = {"./myapp", "1,2,3,4,7"};
+	Arguments args(2, argv);
+
+	std::set<int> arg;
+	std::set<int> expected = {1, 2, 3, 4, 7};
 	EXPECT_TRUE(      args.getNextArgument(arg, list()));
 	EXPECT_EQ(expected, arg);
 }
