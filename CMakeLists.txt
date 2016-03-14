@@ -47,11 +47,15 @@ configure_file(
 target_include_directories("${LIBNAME}" PUBLIC "${PROJECT_BINARY_DIR}/include")
 
 ## Add rule for Doxygen
-option(DOC_TARGET
+set(DOXYGEN_DEFAULT OFF)
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${PROJECT_SOURCE_DIR}" AND ${DOXYGEN_FOUND})
+	set(DOXYGEN_DEFAULT ON)
+endif()
+option(UTL_DOC_TARGET
 	"Add a target to create the HTML based documentation (requires Doxygen)"
-	${DOXYGEN_FOUND})
+	${DOXYGEN_DEFAULT})
 
-if (DOC_TARGET)
+if (UTL_DOC_TARGET)
 	if (NOT DOXYGEN_FOUND)
 		message(FATAL_ERROR "Doxygen not found")
 	endif()
@@ -66,11 +70,15 @@ if (DOC_TARGET)
 endif()
 
 ## Add unit tests
-option(UNIT_TEST
+set(UNIT_TESTS_DEFAULT OFF)
+if ("${CMAKE_SOURCE_DIR}" STREQUAL "${PROJECT_SOURCE_DIR}" AND ${GTEST_FOUND})
+	set(UNIT_TESTS_DEFAULT ON)
+endif()
+option(UTL_UNIT_TESTS
 	"Build unit tests (requires GTest)"
-	${GTEST_FOUND})
+	${UNIT_TESTS_DEFAULT})
 
-if (UNIT_TEST)
+if (UTL_UNIT_TESTS)
 	if (NOT GTEST_FOUND)
 		message(FATAL_ERROR "GTest not found")
 	endif()
