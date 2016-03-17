@@ -30,38 +30,38 @@
 namespace utl {
 
 template <typename... A>
-void log(LogLevel level , A... a) {
+static inline void log(LogLevel level , A... a) {
 	Logger &logger = Logger::get(STR_VALUE(UTL_LOGGER));
 	logger.log(level, a...);
 }
 
 template <typename... A>
-void finest(A... a) {
+static inline void finest(A... a) {
 	log(LogLevel::FINEST, a...);
 }
 
 template <typename... A>
-void finer(A... a) {
+static inline void finer(A... a) {
 	log(LogLevel::FINER, a...);
 }
 
 template <typename... A>
-void fine(A... a) {
+static inline void fine(A... a) {
 	log(LogLevel::FINE, a...);
 }
 
 template <typename... A>
-void info(A... a) {
+static inline void info(A... a) {
 	log(LogLevel::INFO, a...);
 }
 
 template <typename... A>
-void warning(A... a) {
+static inline void warning(A... a) {
 	log(LogLevel::WARNING, a...);
 }
 
 template <typename... A>
-void severe(A... a) {
+static inline void severe(A... a) {
 	log(LogLevel::SEVERE, a...);
 }
 
