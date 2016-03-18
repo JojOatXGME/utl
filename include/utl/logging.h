@@ -19,50 +19,50 @@
 
 // TODO logger cache per file?
 
-#define utl_log(level, ...) utl::Logger::get(STR_VALUE(UTL_LOGGER)).log(level, __VA_ARGS__)
-#define utl_finest(...)  utl_log(utl::LogLevel::FINEST,  __VA_ARGS__)
-#define utl_finer(...)   utl_log(utl::LogLevel::FINER,   __VA_ARGS__)
-#define utl_fine(...)    utl_log(utl::LogLevel::FINE,    __VA_ARGS__)
-#define utl_info(...)    utl_log(utl::LogLevel::INFO,    __VA_ARGS__)
-#define utl_warning(...) utl_log(utl::LogLevel::WARNING, __VA_ARGS__)
-#define utl_severe(...)  utl_log(utl::LogLevel::SEVERE,  __VA_ARGS__)
+#define utl_log(level, ...) utl::log::Logger::get(STR_VALUE(UTL_LOGGER)).log(level, __VA_ARGS__)
+#define utl_finest(...)  utl_log(utl::log::LogLevel::FINEST,  __VA_ARGS__)
+#define utl_finer(...)   utl_log(utl::log::LogLevel::FINER,   __VA_ARGS__)
+#define utl_fine(...)    utl_log(utl::log::LogLevel::FINE,    __VA_ARGS__)
+#define utl_info(...)    utl_log(utl::log::LogLevel::INFO,    __VA_ARGS__)
+#define utl_warning(...) utl_log(utl::log::LogLevel::WARNING, __VA_ARGS__)
+#define utl_severe(...)  utl_log(utl::log::LogLevel::SEVERE,  __VA_ARGS__)
 
 namespace utl {
 
 template <typename... A>
-static inline void log(LogLevel level , A... a) {
-	Logger &logger = Logger::get(STR_VALUE(UTL_LOGGER));
+static inline void logl(log::LogLevel level , A... a) {
+	log::Logger &logger = log::Logger::get(STR_VALUE(UTL_LOGGER));
 	logger.log(level, a...);
 }
 
 template <typename... A>
 static inline void finest(A... a) {
-	log(LogLevel::FINEST, a...);
+	logl(log::LogLevel::FINEST, a...);
 }
 
 template <typename... A>
 static inline void finer(A... a) {
-	log(LogLevel::FINER, a...);
+	logl(log::LogLevel::FINER, a...);
 }
 
 template <typename... A>
 static inline void fine(A... a) {
-	log(LogLevel::FINE, a...);
+	logl(log::LogLevel::FINE, a...);
 }
 
 template <typename... A>
 static inline void info(A... a) {
-	log(LogLevel::INFO, a...);
+	logl(log::LogLevel::INFO, a...);
 }
 
 template <typename... A>
 static inline void warning(A... a) {
-	log(LogLevel::WARNING, a...);
+	logl(log::LogLevel::WARNING, a...);
 }
 
 template <typename... A>
 static inline void severe(A... a) {
-	log(LogLevel::SEVERE, a...);
+	logl(log::LogLevel::SEVERE, a...);
 }
 
 } // namespace utl

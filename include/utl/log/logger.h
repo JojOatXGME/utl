@@ -14,6 +14,7 @@
 
 
 namespace utl {
+namespace log {
 
 class Logger
 {
@@ -157,6 +158,7 @@ inline void Logger::log(const LogRecord &record) const
 	}
 }
 
+} // namespace log
 } // namespace utl
 
 #endif // UTL_LOGGER_H

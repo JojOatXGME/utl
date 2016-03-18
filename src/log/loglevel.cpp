@@ -2,6 +2,7 @@
 
 
 namespace utl {
+namespace log {
 
 const LogLevel LogLevel::ALL     (INT_MIN);
 const LogLevel LogLevel::FINEST  (    300, "FINEST" );
@@ -13,4 +14,5 @@ const LogLevel LogLevel::WARNING (    900, "WARNING");
 const LogLevel LogLevel::SEVERE  (   1000, "SEVERE" );
 const LogLevel LogLevel::OFF     (INT_MAX);
 
+} // namespace log
 } // namespace utl

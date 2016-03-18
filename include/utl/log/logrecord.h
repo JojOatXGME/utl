@@ -7,6 +7,7 @@
 
 
 namespace utl {
+namespace log {
 
 struct LogRecord
 {
@@ -26,6 +27,7 @@ inline LogRecord::LogRecord() :
 {
 }
 
+} // namespace log
 } // namespace utl
 
 #endif // UTL_LOGRECORD_H

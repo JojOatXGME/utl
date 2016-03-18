@@ -6,6 +6,7 @@
 
 
 namespace utl {
+namespace log {
 
 class LogHandler
 {
@@ -48,6 +49,7 @@ inline void LogHandler::handle(const LogRecord &record)
 		publish(record);
 }
 
+} // namespace log
 } // namespace utl
 
 #endif // UTL_LOGHANDLER_H

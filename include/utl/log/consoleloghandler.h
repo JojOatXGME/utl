@@ -6,6 +6,7 @@
 
 
 namespace utl {
+namespace log {
 
 class ConsoleLogHandler : public LogHandler
 {
@@ -20,6 +21,7 @@ private:
 
 };
 
+} // namespace log
 } // namespace utl
 
 #endif // UTL_CONSOLELOGHANDLER_H

@@ -19,6 +19,7 @@ using std::endl;
 
 
 namespace utl {
+namespace log {
 
 ConsoleLogHandler::ConsoleLogHandler() :
 	mIsTTY(isatty(fileno(stderr)))
@@ -62,4 +63,5 @@ void ConsoleLogHandler::publish(const LogRecord &record)
 	cerr << obuf.str() << std::endl;
 }
 
+} // namespace log
 } // namespace utl

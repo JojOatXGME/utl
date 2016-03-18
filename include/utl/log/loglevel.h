@@ -8,6 +8,7 @@
 
 
 namespace utl {
+namespace log {
 
 class LogLevel final
 {
@@ -101,6 +102,7 @@ inline std::ostream &operator<<(std::ostream &stream, LogLevel level)
 		return stream << level.mValue;
 }
 
+} // namespace log
 } // namespace utl
 
 #endif // UTL_LOGLEVEL_H
