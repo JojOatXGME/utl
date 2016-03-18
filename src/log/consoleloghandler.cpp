@@ -1,4 +1,4 @@
-#include "utl/consoleloghandler.h"
+#include "utl/log/consoleloghandler.h"
 
 #include <iostream>
 #include <sstream>
@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif
 
-#include "utl/logrecord.h"
+#include "utl/log/logrecord.h"
 
 using std::cerr;
 using std::endl;

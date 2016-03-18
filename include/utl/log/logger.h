@@ -7,9 +7,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "utl/loghandler.h"
-#include "utl/loglevel.h"
-#include "utl/logrecord.h"
+#include "utl/log/loghandler.h"
+#include "utl/log/loglevel.h"
+#include "utl/log/logrecord.h"
 #include "utl/utils.h"
 
 

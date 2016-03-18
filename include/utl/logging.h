@@ -1,8 +1,8 @@
 #ifndef UTL_LOGGING_H
 #define UTL_LOGGING_H
 
-#include "utl/logger.h"
-#include "utl/loglevel.h"
+#include "utl/log/logger.h"
+#include "utl/log/loglevel.h"
 
 
 #ifndef STR

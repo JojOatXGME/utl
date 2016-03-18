@@ -1,8 +1,8 @@
 #ifndef UTL_CONSOLELOGHANDLER_H
 #define UTL_CONSOLELOGHANDLER_H
 
-#include "utl/loghandler.h"
-#include "utl/logrecord.h"
+#include "utl/log/loghandler.h"
+#include "utl/log/logrecord.h"
 
 
 namespace utl {
