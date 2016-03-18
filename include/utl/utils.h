@@ -8,6 +8,11 @@
 #include <string>
 
 
+//! Gets arg as sting literal.
+#define UTL_STR(arg) #arg
+//! Like #UTL_STR, but replaces every macro with it's value first.
+#define UTL_STR_VALUE(arg) UTL_STR(arg)
+
 namespace utl {
 
 template <typename... A>

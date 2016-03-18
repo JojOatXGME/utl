@@ -5,21 +5,13 @@
 #include "utl/log/loglevel.h"
 
 
-#ifndef STR
-#define STR(arg) #arg
-#endif
-
-#ifndef STR_VALUE
-#define STR_VALUE(name) STR(name)
-#endif
-
 #ifndef UTL_LOGGER
 #define UTL_LOGGER
 #endif
 
 // TODO logger cache per file?
 
-#define utl_log(level, ...) utl::log::Logger::get(STR_VALUE(UTL_LOGGER)).log(level, __VA_ARGS__)
+#define utl_log(level, ...) utl::log::Logger::get(UTL_STR_VALUE(UTL_LOGGER)).log(level, __VA_ARGS__)
 #define utl_finest(...)  utl_log(utl::log::LogLevel::FINEST,  __VA_ARGS__)
 #define utl_finer(...)   utl_log(utl::log::LogLevel::FINER,   __VA_ARGS__)
 #define utl_fine(...)    utl_log(utl::log::LogLevel::FINE,    __VA_ARGS__)
@@ -31,7 +23,7 @@ namespace utl {
 
 template <typename... A>
 static inline void logl(log::LogLevel level , A... a) {
-	log::Logger &logger = log::Logger::get(STR_VALUE(UTL_LOGGER));
+	log::Logger &logger = log::Logger::get(UTL_STR_VALUE(UTL_LOGGER));
 	logger.log(level, a...);
 }
 
