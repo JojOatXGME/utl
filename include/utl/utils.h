@@ -1,6 +1,11 @@
 #ifndef UTL_UTILS_H
 #define UTL_UTILS_H
 
+/**
+ * @file  utils.h
+ * @brief This file provides some common functions and macros.
+ */
+
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -19,6 +24,16 @@ template <typename... A>
 std::string format(const std::string format, A... args);
 
 
+/**
+ * @brief Returns a formatted string based on the given format and arguments.
+ *
+ * This function uses `snprintf()`, but it may use a typesafe implementation in
+ * the future.
+ *
+ * @param format A format string which specifies the format.
+ * @param args   The arguments to be used in the string.
+ * @return The formated string.
+ */
 template <typename... A>
 inline std::string format(const std::string format, A... args)
 {
