@@ -189,7 +189,7 @@ class list_helper {
 		container.insert(value);
 	}
 	template<typename C, typename V>
-	static void addTo(C &container, const V &value, decltype(container.push_back(value))* = nullptr) {
+	static void addTo(C &container, const V &value) {
 		container.push_back(value);
 	}
 public:
